@@ -1,0 +1,100 @@
+/*                                                                       
+ *                                     ,--.                                
+ *             .---.                 ,--.'|            ,----..            
+ *            /. ./|             ,--,:  : |           /   /   \           
+ *        .--'.  ' ;          ,`--.'`|  ' :          |   :     :  ,---.   
+ *       /__./ \ : |          |   :  :  | |          .   |  ;. / '   ,'\  
+ *   .--'.  '   \' .   ,---.  :   |   \ | :   ,---.  .   ; /--` /   /   | 
+ *  /___/ \ |    ' '  /     \ |   : '  '; |  /     \ ;   | ;   .   ; ,. : 
+ *  ;   \  \;      : /    /  |'   ' ;.    ; /    /  ||   : |   '   | |: : 
+ *   \   ;  `      |.    ' / ||   | | \   |.    ' / |.   | '___'   | .; : 
+ *    .   \    .\  ;'   ;   /|'   : |  ; .''   ;   /|'   ; : .'|   :    | 
+ *     \   \   ' \ |'   |  / ||   | '`--'  '   |  / |'   | '/  :\   \  /  
+ *      :   '  |--" |   :    |'   : |      |   :    ||   :    /  `----'   
+ *       \   \ ;     \   \  / ;   |.'       \   \  /  \   \ .'            
+ *        '---"       `----'  '---'          `----'    `---`              
+ * 
+ *                          Web Network Configuration 
+ *     
+ *                                DEFAULT STYLE
+ */
+
+/* MAIN BODY */
+body {
+  font: 100.01% Verdana, Arial, Helvetica, sans-serif;
+}
+
+* {
+  margin:0;
+  padding:0;
+}
+
+#container {
+  width:100%;
+  height: 100%;
+  min-height:800px;
+  margin: 0 auto;
+}
+
+#header {
+  background-color:white;
+}
+.logo { 
+    background: url("../img/WeNeCo.png") no-repeat; width: 300px; height: 150px; display: block; text-indent: -9999px;}
+}
+
+/* NAV-BAR */
+#nav {
+    float: left;
+    min-height:100%;
+}
+
+#nav ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #f1f1f1;
+    width: 200px;
+    height: 100%; /* Full height */
+    /*position: fixed; /* Make it stick, even on scroll */
+    overflow: auto; /* Enable scrolling if the sidenav has too much content */
+}
+
+#nav li a {
+    display: block;
+    color: #000;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+/* Change the link color on hover */
+#nav li a:hover {
+    background-color: #555;
+    color: white;
+}
+/* ./nav-bar */
+
+
+#content {
+  background-color: #f0f0f0;
+  margin: 0 auto;
+}
+
+/*  CONTENT  */
+#content_header {
+    font-size: 24px;
+    text-align: center;
+    margin: auto;
+}
+
+#content_body {
+    margin: auto;
+    text-align: center;
+}
+/*  ./content  */
+
+
+#footer{
+  clear: both;
+}
+/* ./main-body */
