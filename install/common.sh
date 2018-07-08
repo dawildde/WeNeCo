@@ -19,9 +19,12 @@
 #                       Common functions for installation
 #
 
+# SETTINGS
 weneco_dir="/etc/weneco"
 webroot_dir="/var/www/html/weneco"
 weneco_user="www-data"
+php_package="php7.0-cgi" 
+#php_package="php5-cgi"
 
 # Outputs a log line
 function log() {
@@ -114,14 +117,18 @@ function install_package(){
     if [ $state == "inactive"  ]
     then
         log "instaling $1"
-        eval "sudo apt-get install $1"
+        eval "sudo apt-get install $1" || install_error "Unable to install $1"
     else
         log "$1 already installed"
     fi
 }
 
 function install_dependencies(){
-    sudo apt-get install lighttpd $php_package git hostapd dnsmasq || install_error "Unable to install dependencies"
+    install_package "lighttpd"
+    install_package $php_package
+    install_package "git" 
+    install_package "hostapd" 
+    install_package "dnsmasq"
 }
 
 # DOWNLOAD NEWEST FILES
