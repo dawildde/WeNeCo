@@ -1,4 +1,4 @@
-# NETWORK Configuration-File
+# WIRED-NETWORK Configuration-File
 # modified by:
 #                                                                        
 #                                     ,--.                               
@@ -17,9 +17,3 @@
 #        '---"       `----'  '---'          `----'    `---`              
 # 
 #                          Web Network Configuration      
-
-[Match]
-Name=wlan0
-
-[Network]
-DHCP=ipv4

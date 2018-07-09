@@ -21,6 +21,7 @@
 # SET FILE PERMISSIONS
 function set_permissions(){
     # patch weneco_dir
+    log_ne "set WeNeCo file permissions"
     sudo chown -R $weneco_user:$weneco_user "$weneco_dir" || install_error "Unable to change file ownership for '$weneco_dir'"
     sudo chmod -R 750 $weneco_dir || install_error "Unable to change file permissions for '$weneco_dir'"
     sudo chmod -R 750 $weneco_dir/config/ || install_error "Unable to change file permissions for '$weneco_dir/config'"
@@ -28,6 +29,7 @@ function set_permissions(){
     # patch html-dir
     sudo chown -R $weneco_user:$weneco_user "$webroot_dir" || install_error "Unable to change file ownership for '$webroot_dir'"
     sudo chmod -R 750 $webroot_dir || install_error "Unable to change file permissions for '$webroot_dir'" 
+    log_ok
 }
 
 # Add a single entry to the sudoers file
@@ -43,9 +45,7 @@ function patch_sudoers() {
     cmds=(
         "/sbin/ifdown"
         "/sbin/ifup"
-        "/bin/cat /etc/systemd/network/wired.network"
         "/bin/cat /etc/systemd/network/device[0-9].network"
-        "/bin/cp $weneco_dir/config/wired.network /etc/systemd/network/wired.network"
         "/bin/cp $weneco_dir/config/device[0-9].network /etc/systemd/network/device[0-9].network"
     )
 
@@ -53,15 +53,17 @@ function patch_sudoers() {
     if [ $(sudo grep -c $weneco_user /etc/sudoers) -ne ${#cmds[@]} ]
     then
         # Sudoers file has incorrect number of commands. Wiping them out.
-        log "Cleaning sudoers file"
+        log_ne "Cleaning sudoers file"
         eval "sudo sed -i '/$weneco_user/d' /etc/sudoers"
-        log "Patching system sudoers file"
+        log_ok
+        log_ne "Patching system sudoers file"
         # patch /etc/sudoers file
         for cmd in "${cmds[@]}"
         do
             sudo_add $cmd
             IFS=$'\n'
         done
+        log_ok
     else
         log "Sudoers file already patched"
     fi
