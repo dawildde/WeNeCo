@@ -18,7 +18,10 @@
 #     
 #                           Change network settings
 #
-source common.sh
+# SOURCES
+root_dir=$(dirname $(readlink -f $0))
+source "$root_dir/welcome.sh"
+source "$root_dir/common.sh"
 
 # SHOW CONFIGURE NETWORK DIALOG
 function configure_network(){
@@ -71,7 +74,7 @@ function config_device(){
         # SAVE FILE 
         if [[ $answer == "y" ]]; then
             # CREATE NETWORK CONFIG FILE
-            file="$weneco_dir/config/device$2.network"
+            file="$weneco_dir/network/device$2.network"
             log_ne "creating file '$file'"
             sudo cp "$weneco_dir/config/template.network" "$file" || install_error "Unable to copy network config"
             echo "[Match]" >> $file
@@ -107,5 +110,9 @@ function config_network_devices(){
     overwrite_networkfiles
 }
 
+# ONLY START MAIN-SCRIPT
+if [ $main != "weneco.sh" ]; then
+	install_error "Please run 'weneco.sh'"
+fi
 
 

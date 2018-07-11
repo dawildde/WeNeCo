@@ -18,18 +18,26 @@
 #
 #                         Patching File Permissions
 
+# SOURCES
+root_dir=$(dirname $(readlink -f $0))
+source "$root_dir/welcome.sh"
+source "$root_dir/common.sh"
+
 # SET FILE PERMISSIONS
 function set_permissions(){
     # patch weneco_dir
     log_ne "set WeNeCo file permissions"
-    sudo chown -R $weneco_user:$weneco_user "$weneco_dir" || install_error "Unable to change file ownership for '$weneco_dir'"
-    sudo chmod -R 750 $weneco_dir || install_error "Unable to change file permissions for '$weneco_dir'"
-    sudo chmod -R 750 $weneco_dir/config/ || install_error "Unable to change file permissions for '$weneco_dir/config'"
+    sudo chown -R root:$weneco_user "$weneco_dir" || install_error "Unable to change file ownership for '$weneco_dir'"
+    sudo find "$weneco_dir" -type d -exec chmod 755 {} + || install_error "Unable to change file permissions for '$weneco_dir'"
+    sudo find "$weneco_dir" -type f -exec chmod 644 {} + || install_error "Unable to change file permissions for '$weneco_dir'"
+    sudo find "$weneco_dir/network" -type f -exec chmod 664 {} + || install_error "Unable to change file permissions for '$weneco_dir/config'"
     
     # patch html-dir
     sudo chown -R $weneco_user:$weneco_user "$webroot_dir" || install_error "Unable to change file ownership for '$webroot_dir'"
-    sudo chmod -R 750 $webroot_dir || install_error "Unable to change file permissions for '$webroot_dir'" 
+    sudo find "$webroot_dir" -type d -exec chmod 755 {} + || install_error "Unable to change file permissions for '$webroot_dir'" 
+    sudo find "$webroot_dir" -type f -exec chmod 644 {} + || install_error "Unable to change file permissions for '$webroot_dir'" 
     log_ok
+    
 }
 
 # Add a single entry to the sudoers file
@@ -40,17 +48,20 @@ function sudo_add() {
 }
 
 # Adds www-data user to the sudoers file with restrictions on what the user can execute
+# use parameter "force" to overwrite even count is eval
 function patch_sudoers() {
     # Set commands array
     cmds=(
         "/sbin/ifdown"
         "/sbin/ifup"
         "/bin/cat /etc/systemd/network/device[0-9].network"
-        "/bin/cp $weneco_dir/config/device[0-9].network /etc/systemd/network/device[0-9].network"
+		"/bin/rm /etc/systemd/network/device[0-9].network"
+        "/bin/cp $weneco_dir/network/device[0-9].network /etc/systemd/network/device[0-9].network"
+		"/bin/ls -I lo /sys/class/net"
     )
 
     # Check if sudoers needs patching
-    if [ $(sudo grep -c $weneco_user /etc/sudoers) -ne ${#cmds[@]} ]
+    if [[ $(sudo grep -c $weneco_user /etc/sudoers) -ne ${#cmds[@]} ]] || [[ "$1" == "force" ]]
     then
         # Sudoers file has incorrect number of commands. Wiping them out.
         log_ne "Cleaning sudoers file"
@@ -69,9 +80,13 @@ function patch_sudoers() {
     fi
 }
 
-
 # PATCH FILES AND SUDOERS
 function patch_all(){
     set_permissions
     patch_sudoers
 }
+
+# ONLY START MAIN-SCRIPT
+if [ $main != "weneco.sh" ]; then
+	install_error "Please run 'weneco.sh'"
+fi

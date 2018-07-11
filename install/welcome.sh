@@ -1,3 +1,4 @@
+
 # SHOW WELCOME MESSAGE
 function display_logo(){
     col1="\033[1;32m"
@@ -21,3 +22,4 @@ function display_logo(){
     echo -e  "\033[1;32m                         Web Network Configuration                                \033[m"
     echo -e  "${col1}                          ${col2}                       ${col3}                      ${nc}"
 } 
+
