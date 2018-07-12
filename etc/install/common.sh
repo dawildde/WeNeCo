@@ -20,8 +20,9 @@
 #
 
 # SOURCES
-root_dir=$(dirname $(readlink -f $0))
-source "$root_dir/config.sh"
+source_dir=$(dirname $(readlink -f $0))         # DIRECTORY FOR INSTALLER SOURCE FILES (.../weneco/etc/install)
+setup_root=$(dirname $(dirname $source_dir))    # WENECO ROOT DIRECTORY (.../weneco)
+source "$source_dir/config.sh"
 
 # GET BASESCRIPT NAME
 main=$(basename ${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]})
@@ -68,6 +69,23 @@ function install_error() {
 }
 
 #------------------------------------
+#       DOWNLOAD FUNCTIONS
+#------------------------------------
+
+# DOWNLOAD NEWEST FILES
+function download_latest(){
+    log_ne "Cloning latest files from github"
+    # REMOVE OLD
+    if [ -d /tmp/weneco ]; then
+        sudo rm -R "/tmp/weneco" || install_error "Unable to delete old download from '/tmp/weneco'"
+    fi
+    # DOWNLOAD NEW
+    #git clone https://github.com/dawildde/WeNeCo /tmp/weneco || install_error "Unable to download files from github"
+    sudo cp -R "/var/www/html/weneco_dev/" "/tmp/weneco"
+	log_ok
+}
+
+#------------------------------------
 #          SYSTEM FUNCTIONS
 #------------------------------------
 
@@ -88,37 +106,85 @@ function update_system(){
 
 # CREATE DIRECTORIES
 function create_directories(){
-    log_ne "Creating WeNeCo directories"
+    log_ne "Creating WeNeCo directory '$weneco_dir'"
     # Main directory
     if [ -d "$weneco_dir" ]; then
-        mv $weneco_dir "$weneco_dir.`date +%F-%R`" || install_error "Unable to move old '$weneco_dir' out of the way"
+        mv "$weneco_dir" "$weneco_dir.`date +%F-%R`" || install_error "Unable to move old '$weneco_dir' out of the way"
     fi
     mkdir -p "$weneco_dir" || install_error "Unable to create directory '$weneco_dir'"
     
-    # Backup directory
-    sudo mkdir -p "$weneco_dir/backups"
-    sudo mkdir -p "$weneco_dir/network"
-	sudo mkdir -p "$weneco_dir/config"
-    
+    sudo mkdir -p "$weneco_dir/backups" # Backup directory
+    sudo mkdir -p "$weneco_dir/network" # Network-config directory
+	sudo mkdir -p "$weneco_dir/config"  # General-config / Template directory
     log_ok
+    
+    # Main directory
+    log_ne "Creating WeNeCo Web-directory '$webroot_dir'"
+    if [ -d "$webroot_dir" ]; then
+        mv "$webroot_dir" "$webroot_dir.`date +%F-%R`" || install_error "Unable to move old '$webroot_dir' out of the way"
+    fi
+    sudo mkdir -p "$webroot_dir"
+}
+
+# COPY FILES TO /etc/weneco
+function copy_etc_files(){
+    if [ -d "/tmp/weneco/etc" ]; then
+        if [ -d "$weneco_dir" ]; then
+            # BACKUP OLD
+            backup_weneco
+            # COPY FILES
+            log_ne "copy files to '$weneco_dir'"
+            sudo cp -R "/tmp/weneco/etc/"* "$weneco_dir" || install_error "Unable to copy files to $weneco_dir"  # moving scripts
+            sudo cp "/tmp/weneco/.version" "$weneco_dir"   # copy .version file
+            log_ok
+        else
+            install_error "WeNeCo directory ('$weneco_dir') is not existing. Please reinstall"
+        fi
+    else
+        install_error "Install-Source directory ('/tmp/weneco') is not existing. Please reinstall"    
+    fi
+}
+
+# COPY WEB-FILES
+function copy_web_files(){
+    if [ -d "/tmp/weneco" ]; then
+        if [ -d "$webroot_dir" ]; then  
+            # BACKUP OLD
+            backup_webroot    
+            # copy website exclude /etc
+            log_ne "copy files to '$webroot_dir'"
+            sudo cp -R "/tmp/weneco/"* "$webroot_dir" || install_error "Unable to move files to $webroot_dir"  # moving website
+            sudo cp "/tmp/weneco/.version"  "$webroot_dir"   # copy .version file
+            sudo rm -R "$webroot_dir/etc"    # remove /etc from webroot_dir
+            log_ok
+        else
+            install_error "WeNeCo directory ('$webroot_dir') is not existing. Please reinstall"
+        fi
+    else
+        install_error "Install-Source directory ('/tmp/weneco') is not existing. Please reinstall"    
+    fi
 }
 
 # MOVE FILES TO APP DIRECTORIES
-function move_files(){
-    if [ -d "$webroot_dir" ] && [ -d "$weneco_dir" ]; then
-        log_ne "moving files"
-        sudo mv "$webroot_dir/config" "$weneco_dir" || install_error "Unable to move files to $weneco_dir"
-        sudo mv "$webroot_dir/install" "$weneco_dir" || install_error "Unable to move files to $weneco_dir"
-        log_ok
-    else
-        install_error "WeNeCo directories are not existing. Please reinstall"
+function copy_files(){
+    copy_etc_files
+    copy_web_files
+}
+
+# CLEANUP SETUP FILES
+function cleanup_setup(){
+    log_ne "cleaning up"
+    if [ -d /tmp/weneco ]; then
+        sudo rm -R "/tmp/weneco"
     fi
+    log_ok
 }
 
 # UPDATE SYSTEM FILES
 function overwrite_systemfiles(){
     log_ne "overwrite system-files"
-    sudo cp "$weneco_dir/config/interfaces" /etc/network/interfaces  || install_error "Unable to overwrite '/etc/network/interfaces/'"
+    sudo cp "$weneco_dir/config/interfaces" "/etc/network/interfaces"  || install_error "Unable to overwrite '/etc/network/interfaces/'"
+    sudo cp "$weneco_dir/config/wpasupplicant@.service" "/etc/systemd/system/wpasupplicant@.service" || install_error "Unable to overwrite '/etc/systemd/system/wpasupplicant@.service'"
     if [ -f /etc/resolv.conf ]; then
         sudo rm /etc/resolv.conf
     fi
@@ -127,16 +193,18 @@ function overwrite_systemfiles(){
 
 # COPY NETWORK SETTINGS
 function overwrite_networkfiles(){
+    log_ne "copy network files to '/etc/systemd/network/'"
     if [ -f "$weneco_dir/network/device0.network" ]; then
-        log_ne "copy network files to '/etc/systemd/network/'"
         # backup old files
         for file in /etc/systemd/network/device*.network
         do
             backup_file $file
+            sudo rm $file # remove old files
         done
-        sudo rm $weneco_dir/network/device*.network # remove old files
         sudo cp -p $weneco_dir/network/device*.network /etc/systemd/network/ || install_error "Unable to overwrite network files in '/etc/systemd/network/'"
         log_ok
+    else
+        log_warn "nothing to copy"
     fi
 }
 
@@ -180,6 +248,26 @@ function backup_config(){
     log_ok
 }
 
+# BACKUP WENECO DIR
+function backup_weneco(){
+    log_ne "Backup old weneco dir"
+    if [ -f "$weneco_dir/.version" ]; then
+        oldv=$(cat "$weneco_dir/.version")
+        sudo cp -R "$weneco_dir"  "${weneco_dir}.V${oldv}" || install_error "Unable to backup old version '${weneco_dir}.V${oldv}"
+    fi
+    log_ok
+}
+
+# BACKUP WEBROOT DIR
+function backup_webroot(){
+    log_ne "Backup old weneco dir"
+    if [ -f "$webroot_dir/.version" ]; then
+        oldv=$(cat "$webroot_dir/.version")
+        sudo sudo cp -R "$webroot_dir"  "${webroot_dir}.V${oldv}" || install_error "Unable to backup old version '${webroot_dir}.V${oldv}"
+    fi
+    log_ok
+}
+
 #------------------------------------
 #         INSTALL FUNCTIONS
 #------------------------------------
@@ -198,7 +286,7 @@ function config_php_version(){
         php_package="php7.0-cgi" 
     fi
 	# replace package in config.sh
-	eval "sed -i '/php_package=/c\php_package=\"$php_package\"' $root_dir/config.sh"
+	eval "sed -i '/php_package=/c\php_package=\"$php_package\"' $source_dir/config.sh"
 }
 
 # INSTALL PACKAGE
@@ -222,25 +310,6 @@ function install_dependencies(){
     install_package "dnsmasq"
 }
 
-
-#------------------------------------
-#       DOWNLOAD FUNCTIONS
-#------------------------------------
-
-# DOWNLOAD NEWEST FILES
-function download_lates(){
-    log_ne "Cloning latest files from github"
-    git clone https://github.com/dawildde/WeNeCo /tmp/weneco || install_error "Unable to download files from github"
-	log_ok
-	# backup old webroot
-	log_ne "Moving files"
-	if [ -d "$webroot_dir" ]; then
-        sudo mv $webroot_dir "$webroot_dir.`date +%F-%R`" || install_error "Unable to backup old webroot directory"
-    fi
-	# move new files
-    sudo mv /tmp/weneco $webroot_dir || install_error "Unable to move webgui to web root"
-    log_ok
-}
 
 #------------------------------------
 #       NETWORK SERVICE FUNCTIONS

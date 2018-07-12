@@ -19,9 +19,9 @@
 #                         Patching File Permissions
 
 # SOURCES
-root_dir=$(dirname $(readlink -f $0))
-source "$root_dir/welcome.sh"
-source "$root_dir/common.sh"
+source_dir=$(dirname $(readlink -f $0))
+source "$source_dir/welcome.sh"
+source "$source_dir/common.sh"
 
 # SET FILE PERMISSIONS
 function set_permissions(){
@@ -31,6 +31,7 @@ function set_permissions(){
     sudo find "$weneco_dir" -type d -exec chmod 755 {} + || install_error "Unable to change file permissions for '$weneco_dir'"
     sudo find "$weneco_dir" -type f -exec chmod 644 {} + || install_error "Unable to change file permissions for '$weneco_dir'"
     sudo find "$weneco_dir/network" -type f -exec chmod 664 {} + || install_error "Unable to change file permissions for '$weneco_dir/config'"
+	sudo find "$weneco_dir/script" -type f -exec chmod 754 {} + || install_error "Unable to change file permissions for '$weneco_dir/script'"
     
     # patch html-dir
     sudo chown -R $weneco_user:$weneco_user "$webroot_dir" || install_error "Unable to change file ownership for '$webroot_dir'"

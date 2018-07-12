@@ -20,11 +20,11 @@
 #                                 Installer
 
 # SOURCES
-root_dir=$(dirname $(readlink -f $0))
-source "$root_dir/common.sh"
-source "$root_dir/welcome.sh"
-source "$root_dir/common.sh"
-source "$root_dir/patch.sh"
+source_dir=$(dirname $(readlink -f $0))
+source "$source_dir/common.sh"
+source "$source_dir/welcome.sh"
+source "$source_dir/common.sh"
+source "$source_dir/patch.sh"
 
 #------------------------------------
 #    CONFIG INSTALL MENU
@@ -43,6 +43,7 @@ function config_install(){
 	# config php version
 	config_php_version
     # weneco_dir
+
     echo -n "Change install directory: '${weneco_dir}'? [y/N]:"
     read answer
     if [[ $answer == "y" ]]; then
@@ -50,10 +51,11 @@ function config_install(){
         read new_dir
         weneco_dir=$new_dir
 		# replace dir in config.sh
-		eval "sed -i '/weneco_dir=/c\weneco_dir=\"$new_dir\"' $root_dir/config.sh"
-    fi
+		eval "sed -i '/weneco_dir=/c\weneco_dir=\"$new_dir\"' $source_dir/config.sh"
+    fi 
     if [ -d "$weneco_dir" ]; then
-        echo -e "content of '${weneco_dir}' will be moved to ${weneco_dir}.date" 
+        echo -e "${ye}'${weneco_dir}' already exists${nc}"
+        echo -e "content of will be moved to ${weneco_dir}.date" 
     fi
     # webroot_dir
     echo -n "Change Lighttpd directory: '${webroot_dir}'? [y/N]:"
@@ -63,11 +65,13 @@ function config_install(){
         read new_dir
         webroot_dir=$new_dir
 		# replace dir in config.sh
-		eval "sed -i '/webroot_dir=/c\webroot_dir=\"$new_dir\"' $root_dir/config.sh"
+		eval "sed -i '/webroot_dir=/c\webroot_dir=\"$new_dir\"' $source_dir/config.sh"
     fi
     if [ -d "$webroot_dir" ]; then
-        echo -e "content of '${webroot_dir}' will be moved to ${webroot_dir}.date" 
+        echo -e "${ye}'${weneco_dir}' already exists${nc}"
+        echo -e "content will be moved to ${webroot_dir}.date" 
     fi
+
     
     echo -e ""
     echo -e "${ye}Summary:${nc}"
@@ -87,19 +91,20 @@ function config_install(){
 
 # INSTALL ALL
 function install_weneco(){
+    #download_latest # made by weneco.sh
     check_system
     config_install
     create_directories
     backup_config
     update_system
     install_dependencies
-    download_latest
-    move_files
+    copy_files
     patch_all
     configure_network
     overwrite_systemfiles
     disable_services 
     enable_systemd
+    cleanup_setup
 }
 
 # ONLY START MAIN-SCRIPT

@@ -20,14 +20,14 @@
 #                                 Installer
 
 # SOURCES
-root_dir=$(dirname $(readlink -f $0))
-source "$root_dir/common.sh"
-source "$root_dir/install.sh"
-source "$root_dir/welcome.sh"
-source "$root_dir/update.sh"
-source "$root_dir/patch.sh"
-source "$root_dir/network.sh"
-source "$root_dir/repair.sh"
+source_dir=$(dirname $(readlink -f $0))
+source "$source_dir/common.sh"
+source "$source_dir/install.sh"
+source "$source_dir/welcome.sh"
+source "$source_dir/update.sh"
+source "$source_dir/patch.sh"
+source "$source_dir/network.sh"
+source "$source_dir/repair.sh"
 
 # Show Welcome Message
 display_logo

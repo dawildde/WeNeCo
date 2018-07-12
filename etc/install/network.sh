@@ -19,9 +19,9 @@
 #                           Change network settings
 #
 # SOURCES
-root_dir=$(dirname $(readlink -f $0))
-source "$root_dir/welcome.sh"
-source "$root_dir/common.sh"
+source_dir=$(dirname $(readlink -f $0))
+source "$source_dir/welcome.sh"
+source "$source_dir/common.sh"
 
 # SHOW CONFIGURE NETWORK DIALOG
 function configure_network(){
@@ -38,7 +38,7 @@ function configure_network(){
         echo -n "Delete old files? (You may have to configure all devices) [y/N]: "
         read answer
         if [[ $answer == "y" ]]; then
-            sudo rm -f "$weneco_dir/config/device*.network"  || install_error "Unable to delete old network config"
+            sudo rm -f "$weneco_dir/network/device*.network"  || install_error "Unable to delete old network config"
         fi
         config_network_devices
     fi
@@ -47,54 +47,65 @@ function configure_network(){
 # SHOW CONFIGURATION DIALOG
 # CREATE FILE /$weneco_dir/config/deviceX.network
 function config_device(){
-    echo -e "-----------------------------------"
-	echo -e -n "${ye}CONFIGURE DEVICE '$1'? [y/N/c]: ${nc}"
-    read answer
-    if [[ $answer == "y" ]]; then
-       	echo -n "use DHCP? [y/N]: "
-        read dhcp
-        if [[ $dhcp == "y" ]]; then
-            dhcp="yes"
-            answer="y"
-        else
-            echo -n "enter ip-address and subnet eg. [10.10.10.10/24]: "
-            read ip
-            echo -n "enter gateway eg. [10.10.10.1]: "
-            read gw
-            echo -n "enter dns-server eg. [10.10.10.1]: "
-            read dns
-            echo -e "-----------------"
-            echo -e "${ye}Summary:${nc}"
-            echo -e "ip-address: $ip"
-            echo -e "gateway:    $gw"
-            echo -e "dns-server: $dns"
-            echo -n "save configuration? [y/N]: "
-            read answer
-        fi
-        # SAVE FILE 
+    while true;
+    do
+        echo " NEXT LOOP"
+        echo -e "-----------------------------------"
+        echo -e -n "${ye}CONFIGURE DEVICE '$1'? [(y)es / (n)o]: ${nc}"
+        read answer
         if [[ $answer == "y" ]]; then
-            # CREATE NETWORK CONFIG FILE
-            file="$weneco_dir/network/device$2.network"
-            log_ne "creating file '$file'"
-            sudo cp "$weneco_dir/config/template.network" "$file" || install_error "Unable to copy network config"
-            echo "[Match]" >> $file
-            echo "Name=$1" >> $file
-            echo "" >> $file
-            echo "[Network]" >> $file
-            if [ $dhcp == "yes" ]; then 
-                echo "DHCP=yes" >> $file
+            echo -n "use DHCP? [y/N]: "
+            read dhcp
+            if [[ $dhcp == "y" ]]; then
+                dhcp="yes"
+                answer="y"
             else
-                echo "Address=$ip" >> $file
-                echo "Gateway=$gw" >> $file
-                echo "DNS=$dns" >> $file
+                echo -n "enter IP-ADDRESS and subnet eg. [192.168.10.5/24]: "
+                read ip
+                echo -n "enter GATEWAY eg. [192.168.10.1]: "
+                read gw
+                echo -n "enter DNS-SERVER eg. [192.168.10.1]: "
+                read dns
+                echo -e "-----------------"
+                echo -e "${ye}Summary:${nc}"
+                echo -e "ip-address: $ip"
+                echo -e "gateway:    $gw"
+                echo -e "dns-server: $dns"
+                echo -n "save configuration? [(y)es / (n)o / (r)etry]: "
+                read answer
             fi
-            log_ok
+            # RETRY / SAVE FILE 
+            if [[ $answer == "y" ]]; then
+                # CREATE NETWORK CONFIG FILE
+                file="$weneco_dir/network/device$2.network"
+                log_ne "creating file '$file'"
+                sudo cp "$weneco_dir/config/template.network" "$file" || install_error "Unable to copy network config"
+                echo "[Match]" >> $file
+                echo "Name=$1" >> $file
+                echo "" >> $file
+                echo "[Network]" >> $file
+                if [ $dhcp == "yes" ]; then 
+                    echo "DHCP=yes" >> $file
+                else
+                    echo "Address=$ip" >> $file
+                    echo "Gateway=$gw" >> $file
+                    echo "DNS=$dns" >> $file
+                fi
+                log_ok
+                break
+            elif [[ $answer == "n" ]]; then
+                log_warn "$file not saved"
+                break
+            else
+                log_warn "TRY IT ANOTHER TIME"
+            fi 
+        elif [[ $answer == "c" ]]; then
+            #install_error "aborted by user"
+            break
         else
-            log_warn -e "$file not saved"
-        fi 
-    elif [[ $answer == "c" ]]; then
-        install_error "aborted by user"
-    fi
+            break
+        fi
+    done
 }
 
 # LOOP THROUG ALL DEVICES
