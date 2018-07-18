@@ -67,7 +67,6 @@ body {
     text-decoration: none;
 }
 
-/* Change the link color on hover */
 #nav li a:hover {
     background-color: #555;
     color: white;
@@ -75,26 +74,51 @@ body {
 /* ./nav-bar */
 
 
+/*  CONTENT  */
 #content {
   background-color: #f0f0f0;
   margin: 0 auto;
 }
 
-/*  CONTENT  */
 #content_header {
     font-size: 24px;
     text-align: center;
     margin: auto;
+	padding: 30px 0px 15px;
 }
 
 #content_body {
     margin: auto;
     text-align: center;
 }
+
+.iptable {
+	margin: 5px auto 30px;
+}	
+
+/* RESULT MESSAGES*/
+.result_ok{
+	margin: 10px;
+	color: green;
+}
+
+.result_warn{
+	margin: 10px;
+	color: orange;
+}
+
+.result_fail{
+	margin: 10px;
+	color: red;
+}
+
 /*  ./content  */
 
 
 #footer{
-  clear: both;
+	clear: both;
+	text-align: right;
+	padding: 30px;
+	margin-right: 0px 20px;
 }
 /* ./main-body */

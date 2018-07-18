@@ -20,7 +20,7 @@
 #                                 Installer
 
 # SOURCES
-source_dir=$(dirname $(readlink -f $0))         # DIRECTORY FOR INSTALLER SOURCE FILES (.../weneco/etc/install)
+source_dir=$(dirname $(readlink -f $0))        # DIRECTORY FOR INSTALLER SOURCE FILES (.../weneco/etc/install)
 
 source "$source_dir/common.sh"
 source "$source_dir/install.sh"
@@ -57,13 +57,11 @@ function showMenu(){
     fi
 }
 
-
 # SHOW MENU IF STARTET FROM DOWNLOAD-DIR
 if [ "$setup_root" == "/tmp/weneco" ]; then
+    display_logo
     showMenu
 else
-    display_logo
-    download_latest
-    exec sudo bash /tmp/weneco/etc/install/weneco.sh || install_error "Unable to execute installer" 
-    exit 0
+    install_error "Please run 'weneco.sh' in weneco-root directory"
 fi
+

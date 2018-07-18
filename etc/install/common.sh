@@ -23,6 +23,7 @@
 source_dir=$(dirname $(readlink -f $0))         # DIRECTORY FOR INSTALLER SOURCE FILES (.../weneco/etc/install)
 setup_root=$(dirname $(dirname $source_dir))    # WENECO ROOT DIRECTORY (.../weneco)
 source "$source_dir/config.sh"
+source "$source_dir/welcome.sh"
 
 # GET BASESCRIPT NAME
 main=$(basename ${BASH_SOURCE[${#BASH_SOURCE[@]} - 1]})
@@ -58,8 +59,8 @@ function log_warn(){
 
 # Outputs log text and executes something
 function log_exec(){
-	log_ne $1
-	eval "$2" && log_ok || log_failed
+    log_ne $1
+    eval "$2" && log_ok || log_failed
 }
 
 # Outputs install error log line and exits with status code 1
@@ -82,7 +83,7 @@ function download_latest(){
     # DOWNLOAD NEW
     #git clone https://github.com/dawildde/WeNeCo /tmp/weneco || install_error "Unable to download files from github"
     sudo cp -R "/var/www/html/weneco_dev/" "/tmp/weneco"
-	log_ok
+    log_ok
 }
 
 #------------------------------------
@@ -115,7 +116,7 @@ function create_directories(){
     
     sudo mkdir -p "$weneco_dir/backups" # Backup directory
     sudo mkdir -p "$weneco_dir/network" # Network-config directory
-	sudo mkdir -p "$weneco_dir/config"  # General-config / Template directory
+    sudo mkdir -p "$weneco_dir/config"  # General-config / Template directory
     log_ok
     
     # Main directory
@@ -136,6 +137,7 @@ function copy_etc_files(){
             log_ne "copy files to '$weneco_dir'"
             sudo cp -R "/tmp/weneco/etc/"* "$weneco_dir" || install_error "Unable to copy files to $weneco_dir"  # moving scripts
             sudo cp "/tmp/weneco/.version" "$weneco_dir"   # copy .version file
+            sudo cp "/tmp/weneco/weneco.sh" "$weneco_dir"   # copy install-script file
             log_ok
         else
             install_error "WeNeCo directory ('$weneco_dir') is not existing. Please reinstall"
@@ -156,9 +158,27 @@ function copy_web_files(){
             sudo cp -R "/tmp/weneco/"* "$webroot_dir" || install_error "Unable to move files to $webroot_dir"  # moving website
             sudo cp "/tmp/weneco/.version"  "$webroot_dir"   # copy .version file
             sudo rm -R "$webroot_dir/etc"    # remove /etc from webroot_dir
+            sudo rm "$webroot_dir/weneco.sh"    # remove install-script
             log_ok
         else
             install_error "WeNeCo directory ('$webroot_dir') is not existing. Please reinstall"
+        fi
+    else
+        install_error "Install-Source directory ('/tmp/weneco') is not existing. Please reinstall"    
+    fi
+}
+
+# COPY BY PARAMETERS
+function copy(){
+    if [ -d "/tmp/weneco" ]; then
+        src="/tmp/weneco/$1"
+        tgt="$2"
+        if [ ! -d "$src" ] || [ ! -f "$src" ]; then
+            log_ne "copy '$src' -> '$tgt'"
+            eval "sudo cp '$src' '$tgt'" || install_error "Unable to copy '$src' to '$tgt'"
+            log_ok
+        else
+            install_error "Unable to copy - '$src' not existing" 
         fi
     else
         install_error "Install-Source directory ('/tmp/weneco') is not existing. Please reinstall"    
@@ -253,7 +273,7 @@ function backup_weneco(){
     log_ne "Backup old weneco dir"
     if [ -f "$weneco_dir/.version" ]; then
         oldv=$(cat "$weneco_dir/.version")
-        sudo cp -R "$weneco_dir"  "${weneco_dir}.V${oldv}" || install_error "Unable to backup old version '${weneco_dir}.V${oldv}"
+        sudo cp -R "$weneco_dir"  "${weneco_dir}_V${oldv}" || install_error "Unable to backup old version '${weneco_dir}_V${oldv}"
     fi
     log_ok
 }
@@ -263,7 +283,7 @@ function backup_webroot(){
     log_ne "Backup old weneco dir"
     if [ -f "$webroot_dir/.version" ]; then
         oldv=$(cat "$webroot_dir/.version")
-        sudo sudo cp -R "$webroot_dir"  "${webroot_dir}.V${oldv}" || install_error "Unable to backup old version '${webroot_dir}.V${oldv}"
+        sudo sudo cp -R "$webroot_dir"  "${webroot_dir}_V${oldv}" || install_error "Unable to backup old version '${webroot_dir}_V${oldv}"
     fi
     log_ok
 }
@@ -285,8 +305,8 @@ function config_php_version(){
     else
         php_package="php7.0-cgi" 
     fi
-	# replace package in config.sh
-	eval "sed -i '/php_package=/c\php_package=\"$php_package\"' $source_dir/config.sh"
+    # replace package in config.sh
+    eval "sed -i '/php_package=/c\php_package=\"$php_package\"' $source_dir/config.sh"
 }
 
 # INSTALL PACKAGE

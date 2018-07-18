@@ -21,6 +21,7 @@
 
 # SOURCES
 source_dir=$(dirname $(readlink -f $0))
+install_root=$(dirname $(dirname $(dirname $(readlink -f $0))))
 source "$source_dir/common.sh"
 source "$source_dir/welcome.sh"
 source "$source_dir/common.sh"
@@ -40,8 +41,8 @@ function config_install(){
     echo -e "${ye}It's recommed to do installation local not over ssh or network ${nc}"
     echo -e "Old configuration files will be backed up to install directory"
     echo -e ""
-	# config php version
-	config_php_version
+    # config php version
+    config_php_version
     # weneco_dir
 
     echo -n "Change install directory: '${weneco_dir}'? [y/N]:"
@@ -50,8 +51,9 @@ function config_install(){
         echo -n "enter new directory: "
         read new_dir
         weneco_dir=$new_dir
-		# replace dir in config.sh
-		eval "sed -i '/weneco_dir=/c\weneco_dir=\"$new_dir\"' $source_dir/config.sh"
+        # replace dir in config.sh
+        eval "sed -i '/weneco_dir=/c\weneco_dir=\"$new_dir\"' $source_dir/config.sh"
+        eval "sed -i '/WENECO_DIR=/c\WENECO_DIR=\"$new_dir\";'$install_root/includes/config.php"
     fi 
     if [ -d "$weneco_dir" ]; then
         echo -e "${ye}'${weneco_dir}' already exists${nc}"
@@ -64,8 +66,8 @@ function config_install(){
         echo -n "enter new directory: "
         read new_dir
         webroot_dir=$new_dir
-		# replace dir in config.sh
-		eval "sed -i '/webroot_dir=/c\webroot_dir=\"$new_dir\"' $source_dir/config.sh"
+        # replace dir in config.sh
+        eval "sed -i '/webroot_dir=/c\webroot_dir=\"$new_dir\"' $source_dir/config.sh"
     fi
     if [ -d "$webroot_dir" ]; then
         echo -e "${ye}'${weneco_dir}' already exists${nc}"
@@ -91,6 +93,7 @@ function config_install(){
 
 # INSTALL ALL
 function install_weneco(){
+    display_logo
     #download_latest # made by weneco.sh
     check_system
     config_install
@@ -107,7 +110,7 @@ function install_weneco(){
     cleanup_setup
 }
 
-# ONLY START MAIN-SCRIPT
-if [ $main != "weneco.sh" ]; then
-	install_error "Please run 'weneco.sh'"
+# ONLY START WITH MAIN-SETUP-SCRIPT
+if [ $main != "setup.sh" ]; then
+    install_error "Please run 'setup.sh'"
 fi

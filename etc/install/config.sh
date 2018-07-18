@@ -22,6 +22,7 @@
 # SETTINGS
 weneco_dir="/etc/weneco"
 webroot_dir="/var/www/html/weneco"
+tmp_dir="/tmp/weneco"       # must be same in config.php
 weneco_user="www-data"
 php_package="php7.0-cgi"
 

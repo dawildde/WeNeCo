@@ -22,11 +22,11 @@
 
 
 // SET DEFAULT LANGUAGE IF FILE NOT EXISTS
-$lngFile = './lang/'+ WENECO_LNG +'.php';
+$lngFile = "$server_root/lang/"+ WENECO_LNG +".php";
 if ( file_exists($lngFile)){
   require_once( $lngFile );
 } else {
-  require_once( './lang/en_EN.php' );
+  require_once( "$server_root/lang/en_EN.php" );
 };
 
 // RETURNS LANGUAGE STRING IF EXISTS
@@ -38,5 +38,12 @@ function lang($str){
   } else {
     return $str;
   }
+}
+
+// RETURN JSON OBJECT
+function lang_json(){
+  global $_L;
+  
+  return json_encode( $_L );
 }
 ?>

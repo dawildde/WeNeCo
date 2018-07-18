@@ -30,8 +30,9 @@ function set_permissions(){
     sudo chown -R root:$weneco_user "$weneco_dir" || install_error "Unable to change file ownership for '$weneco_dir'"
     sudo find "$weneco_dir" -type d -exec chmod 755 {} + || install_error "Unable to change file permissions for '$weneco_dir'"
     sudo find "$weneco_dir" -type f -exec chmod 644 {} + || install_error "Unable to change file permissions for '$weneco_dir'"
-    sudo find "$weneco_dir/network" -type f -exec chmod 664 {} + || install_error "Unable to change file permissions for '$weneco_dir/config'"
-	sudo find "$weneco_dir/script" -type f -exec chmod 754 {} + || install_error "Unable to change file permissions for '$weneco_dir/script'"
+    sudo chmod 775 "$weneco_dir/network" || install_error "Unable to change file permissions for '$weneco_dir/network'"
+    sudo find "$weneco_dir/network" -type f -exec chmod 664 {} + || install_error "Unable to change file permissions for '$weneco_dir/network'"
+    sudo find "$weneco_dir/script" -type f -exec chmod 754 {} + || install_error "Unable to change file permissions for '$weneco_dir/script'"
     
     # patch html-dir
     sudo chown -R $weneco_user:$weneco_user "$webroot_dir" || install_error "Unable to change file ownership for '$webroot_dir'"
@@ -43,7 +44,7 @@ function set_permissions(){
 
 # Add a single entry to the sudoers file
 function sudo_add() {
-    sudo bash -c "echo \"$weneco_user ALL=(ALL) NOPASSWD:$1\" | (EDITOR=\"tee -a\" visudo)" \
+    sudo bash -c "echo \"$weneco_user ALL=(ALL) NOPASSWD:$1\" | (EDITOR=\"tee -a\" visudo)" &>/dev/null \
         || install_error "Unable to patch /etc/sudoers"
 
 }
@@ -53,12 +54,15 @@ function sudo_add() {
 function patch_sudoers() {
     # Set commands array
     cmds=(
-        "/sbin/ifdown"
-        "/sbin/ifup"
+        "/sbin/ip link set *"
         "/bin/cat /etc/systemd/network/device[0-9].network"
-		"/bin/rm /etc/systemd/network/device[0-9].network"
+        "/bin/rm /etc/systemd/network/device[0-9].network"
         "/bin/cp $weneco_dir/network/device[0-9].network /etc/systemd/network/device[0-9].network"
-		"/bin/ls -I lo /sys/class/net"
+        "/bin/cp $tmp_dir/weneco.auth $weneco_dir/weneco.auth"
+        "/bin/rm $weneco_dir/weneco.auth"
+        "/bin/ls -I lo /sys/class/net"
+        "$weneco_dir/script/execute.sh *"
+        "$weneco_dir/script/wpa_supplicant.sh *"
     )
 
     # Check if sudoers needs patching
@@ -87,7 +91,7 @@ function patch_all(){
     patch_sudoers
 }
 
-# ONLY START MAIN-SCRIPT
-if [ $main != "weneco.sh" ]; then
-	install_error "Please run 'weneco.sh'"
+# ONLY START WITH MAIN-SETUP-SCRIPT
+if [ $main != "setup.sh" ]; then
+    install_error "Please run 'setup.sh'"
 fi

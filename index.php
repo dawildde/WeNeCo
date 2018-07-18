@@ -29,33 +29,39 @@
  */
 session_start();
 
+$web_root = "http://".$_SERVER['HTTP_HOST'].dirname($_SERVER['PHP_SELF']);
+$server_root = dirname(__FILE__);
+
+// includes
+include_once( 'includes/secure.php' );
 include_once( 'includes/config.php' );
 include_once( 'includes/language.php' );
+include_once( 'sites/authentification.php' );
 include_once( 'sites/themes.php' );
 include_once( 'sites/dashboard.php' );
 include_once( 'sites/construction.php' );
+include_once( 'sites/system.php' );
+include_once( 'sites/ifconfig.php' );
 
 $output = $return = 0;
-if ( isset($_GET['page']) ){
-  $site = $_GET['page'];
+if ( isset($_REQUEST['page']) ){
+  $site = $_REQUEST['page'];
 } else{
   $site = "";
 }
 
 // CSFR TOKEN
 if (empty($_SESSION['csrf_token'])) {
-    if (function_exists('mcrypt_create_iv')) {
-        $_SESSION['csrf_token'] = bin2hex(mcrypt_create_iv(32, MCRYPT_DEV_URANDOM));
-    } else {
-        $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
-    }
+  $_SESSION['csrf_token'] = createCSFRToken();
 }
 $csrf_token = $_SESSION['csrf_token'];
 
 // THEME
 $theme_url = 'style/' . WENECO_THEME . '.css';
-?>
 
+// VALIDATE AUTH
+validateAuth();
+?>
 
 <!DOCTYPE html>
 <html>
@@ -70,13 +76,26 @@ $theme_url = 'style/' . WENECO_THEME . '.css';
 
     <!-- Theme CSS -->
     <link href="<?php echo $theme_url; ?>" title="main" rel="stylesheet">
+    
+    <!-- JQUERY -->
+    <link rel="stylesheet" href="js/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.css" />
+    <script src="js/jquery.mobile-1.4.5/jquery-1.11.1.min.js"></script>
+    <script src="js/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
+    <!-- ./jquery -->
+    
+    <!-- JS-SCRIPTS -->  
+    <script src="js/js_php.php"></script>
+    <script src="js/global.js"></script>    
+    <script src="js/system.js"></script>
+    <script src="js/ifconfig.js"></script>
+    <!-- ./js -->
   </head>
   
   <body>
    <div id="container">
     <!-- Header -->
     <div id="header">
-      <a class="logo" href="">Logo</a>
+      <a class="logo" href="index.php">Logo</a>
     </div>
     <!-- ./header -->
 
@@ -84,13 +103,14 @@ $theme_url = 'style/' . WENECO_THEME . '.css';
     <div id="nav">
       <ul>
         <li>
-          <a href="index.php"><?php echo lang('DASHBOARD_LINK'); ?></a>
+          <a href="index.php?page=dashboard"><?php echo lang('DASHBOARD_LINK'); ?></a>
         </li>
-        <!--
         <li>
-          <a href="index.php?page="><?php echo lang('WIFI_CLIENT_LINK'); ?></a>
+          <a href="index.php?page=ifconfig"><?php echo lang('IF_CONFIG_LINK'); ?></a>
         </li>
-        -->
+        <li>
+          <a href="index.php?page=system"><?php echo lang('SYSTEM_LINK'); ?></a>
+        </li>
       </ul>
     </div>
     <!-- ./navbar -->
@@ -99,12 +119,23 @@ $theme_url = 'style/' . WENECO_THEME . '.css';
     <div id="content">
        <?php
         switch ( $site ){
+          case "dashboard":
+            showDashboard();
+            break;
+          case "ifconfig":
+            showIfConfig();
+            break;
           case "themes":
-            showThemeConfig();
+            showConstruction();
+            break;
+          case "system":
+            showSystem();
+            break;
+          case "authconf":
+            showAuthConf();
             break;
           default:
-            //showDashboard();
-            showConstruction();
+            showDashboard();
         };
        
        ?>
@@ -113,7 +144,7 @@ $theme_url = 'style/' . WENECO_THEME . '.css';
     
     <!-- Footer -->
     <div id="footer">
-      
+      WeNeCo V<?php echo file_get_contents ( "$server_root/.version" ); ?> by <a href="http://www.dawild.de">dawild.de</a>
     </div>
     <!-- ./footer -->
     </div>

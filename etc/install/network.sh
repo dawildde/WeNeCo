@@ -110,20 +110,25 @@ function config_device(){
 
 # LOOP THROUG ALL DEVICES
 function config_network_devices(){
-	#get network device names
-	
-	devices=$(ls -I lo /sys/class/net)
-	array=(${devices// / })
-	for i in "${!array[@]}"
-	do
+    #get network device names
+    
+    devices=$(ls -I lo /sys/class/net)
+    array=(${devices// / })
+    for i in "${!array[@]}"
+    do
         config_device ${array[$i]} $i
-	done
+    done
     overwrite_networkfiles
+    echo -e "Restart networking? [y/N]: "
+    read answer
+    if [ $answer == "y" ]; then
+        sudo exec "$weneco_dir/script/restart_network.sh"
+    fi
 }
 
-# ONLY START MAIN-SCRIPT
-if [ $main != "weneco.sh" ]; then
-	install_error "Please run 'weneco.sh'"
+# ONLY START WITH MAIN-SETUP-SCRIPT
+if [ $main != "setup.sh" ]; then
+    install_error "Please run 'setup.sh'"
 fi
 
 

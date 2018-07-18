@@ -5,6 +5,7 @@ function display_logo(){
     col2="\033[1;35m"
     col3="\033[1;34m"
     nc="\033[0m" # No Color
+    #clear
     echo -e  "${col1}                          ${col2}         ,--.          ${col3}                     "
     echo -e  "${col1}           .---.          ${col2}       ,--.'|          ${col3}  ,----..            "
     echo -e  "${col1}         /. ./ |          ${col2}  ,--, :  : |          ${col3}/   /   \            "
