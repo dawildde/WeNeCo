@@ -1,10 +1,11 @@
 # WeNeCo
 WebNetworkConfiguration
 
-PHP based configuration tool for configuring networks with systemd
+PHP based configuration tool for configuring networks with systemd-networkd
 
 
-NOT WORKING AT THE MOMENT
-STILL A TEST
+STILL EARLY BETA
 
-WACH IT IN A FEW DAYS
+At the moment you can just set ip-configuration of interfaces
+
+CHECK NEW FUNCTIONS IN A FEW DAYS
