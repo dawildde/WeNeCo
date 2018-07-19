@@ -19,10 +19,31 @@
 #
 #                                 Installer
 
+script_dir=$(dirname $(readlink -f $0))
+
 # Outputs install error log line and exits with status code 1
 function install_error() {
     echo -e "\033[1;37;41mWeNeCo Install Error: $*\033[m"
     exit 1
+}
+
+# MERGE CONFIGURATION FILE
+function merge_config() {
+    new_conf="/tmp/weneco/etc/config.sh"
+    old_conf="$script_dir/install/config.sh"
+
+    if [ -f $old_conf ]; then
+        echo -ne "merging configuration file"
+        # Loop old conf-file
+        while IFS= read -r line; do
+            if [[ $line =~ .*=.* ]]; then
+              par=${line%=*}
+              # Replace in new-config
+              eval "sed -i '/$par=/c$line' $new_conf" || install_error "COULD NOT REPLACE CONFIG SETTINGS"
+            fi
+        done < "$old_conf"
+        echo -e "\033[1;32m OK \033[0m"
+    fi
 }
 
 # REMOVE OLD Installer
@@ -42,6 +63,7 @@ else
     git clone https://github.com/dawildde/WeNeCo "/tmp/weneco" || install_error "Unable to download files from github"  
 fi
 echo -e "\033[1;32m OK \033[0m"
+merge_config
 
 sleep 1s
 

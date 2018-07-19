@@ -23,7 +23,7 @@
 source_dir=$(dirname $(readlink -f $0))
 source "$source_dir/common.sh"
 
-update_steps=""
+declare -a update_steps
 
 # GET UPDATE STEPS
 function get_update_steps(){
@@ -52,6 +52,12 @@ function get_update_steps(){
         old_version="0.0.7"     # set next version here
     fi
     
+    # V0.1.0 -> V0.1.1
+    if [ "$old_version" == "0.1.0" ]; then
+        full_update
+        old_version="0.1.1"     # set next version here
+    fi
+    
     # VXXXX
     if [ "$old_version" == "9.9.9" ]; then
         #add_step "DO SOMETHING LIKE:"
@@ -61,6 +67,14 @@ function get_update_steps(){
         #add_step "set_permissions"
         #add_step "patch_sudoers"
         old_version="0.0.0"     # set next version here
+    fi
+    
+    #NOT-FOUND -> FULL-UPDATE
+    if [ "$old_version" != "$new_version" ]; then
+        echo "STEPS: '${#update_steps[@]}'"
+        if [ ${#update_steps[@]} -eq 0 ]; then
+            full_update
+        fi
     fi
     
     log_ok
@@ -76,10 +90,9 @@ function add_step(){
 
 # FULL UPDATE
 function full_update(){
-    copy_files
-    set_permissions
-    patch_sudoers
-    cleanup_setup
+    add_step copy_files
+    add_step set_permissions
+    add_step patch_sudoers
 }
 
 # UPDATE
@@ -96,6 +109,7 @@ function update_weneco(){
         eval $step || install_error "Update Error - Unable to perform '${step}'"
     done
     cleanup_setup
+    exit 0
 }
 
 # ONLY START WITH MAIN-SETUP-SCRIPT
