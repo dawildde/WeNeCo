@@ -33,7 +33,7 @@ function merge_config() {
     old_conf="$script_dir/install/config.sh"
 
     if [ -f $old_conf ]; then
-        echo -ne "merging configuration file '$old_conf' with 'new_conf'"
+        echo -ne "merging configuration file '$old_conf' with '$new_conf'"
         # Loop old conf-file
         while IFS= read -r line; do
             if [[ $line =~ .*=.* ]]; then
