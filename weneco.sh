@@ -39,7 +39,7 @@ function merge_config() {
             if [[ $line =~ .*=.* ]]; then
               par=${line%=*}
               # Replace in new-config
-              eval "sed -i '/$par=/c$line' $new_conf" || install_error "COULD NOT REPLACE CONFIG SETTINGS"
+              eval "sed -i '|$par=|c$line' $new_conf" || install_error "COULD NOT REPLACE CONFIG SETTINGS"
             fi
         done < "$old_conf"
         echo -e "\033[1;32m OK \033[0m"
