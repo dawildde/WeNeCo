@@ -29,7 +29,7 @@ function install_error() {
 
 # MERGE CONFIGURATION FILE
 function merge_config() {
-    new_conf="/tmp/weneco/etc/config.sh"
+    new_conf="/tmp/weneco/etc/install/config.sh"
     old_conf="$script_dir/install/config.sh"
 
     if [ -f $old_conf ]; then
