@@ -74,6 +74,7 @@ function patch_sudoers() {
         "$weneco_dir/script/wpa_supplicant.sh start device[0-9]"
         "$weneco_dir/script/wpa_supplicant.sh stop device[0-9]" 
         "$weneco_dir/script/wpa_supplicant.sh scan device[0-9]"
+        "$weneco_dir/script/wpa_supplicant.sh scan -t [0-9] device[0-9]"
         "$weneco_dir/script/wpa_supplicant.sh copy_conf device[0-9]"
         "$weneco_dir/script/wpa_supplicant.sh connect device[0-9]"
         "$weneco_dir/script/wpa_supplicant.sh disconnect device[0-9]"

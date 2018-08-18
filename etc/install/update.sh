@@ -53,6 +53,12 @@ function get_update_steps(){
         old_version="0.2.0"     # set next version here
     fi
     
+    # V0.20 -> V0.2.1
+    if [ "$old_version" == "0.2.0" ]; then
+        full_update
+        old_version="0.2.1"     # set next version here
+    fi
+    
     # VXXXX
     if [ "$old_version" == "9.9.9" ]; then
         #add_step "DO SOMETHING LIKE:"

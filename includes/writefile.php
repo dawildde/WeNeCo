@@ -432,7 +432,10 @@ function create_hostapd( $interface, $jsnDat ){
  
   // create write string
   $wData = "interface=$interface            # Use interface xxxxxxx" .PHP_EOL ;
-  $wData .= "listen-address=" .$data['ipv4']. "  # Explicitly specify the address to listen on" .PHP_EOL ; 
+  // OWN IP ADDRESS
+  if ( strlen( $data['ipv4'] ) > 5 ){ 
+    $wData .= "listen-address=" .$data['ipv4']. "  # Explicitly specify the address to listen on" .PHP_EOL ; 
+  }
   /* DNS-SERVERS READ FROM /etc/resolv.conf
   foreach ( $data["dns"] as $dns ){
       $wData .= "server=$dns                # Forward DNS requests to Google xxxxxx" .PHP_EOL;

@@ -61,7 +61,9 @@
  // EVALUATE EXECUTION RESULT
  function eval_result( $returnval ){
     // CHECK IF LAST 2 LETTERS OF RETURN = "OK"
-    if ( substr( $returnval, -2 ) == "OK" ) {
+    $ret_trim = str_ireplace(array("\n", "\r", "<br>", "<br />", "<br/>"), '', $returnval);
+    
+    if ( substr( $ret_trim, -2 ) == "OK" ) {
         $ret[0] = true;
         $ret[1] = substr( $returnval, 0, -2);
     } else {

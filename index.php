@@ -95,6 +95,7 @@ validateAuth();
     <script src="js/net_ifconf.js"></script>
     <script src="js/net_wificonf.js"></script>
     <script src="js/net_hostapd.js"></script>
+    <script src="js/net_misc.js"></script>
     <!-- ./js -->
   </head>
   
