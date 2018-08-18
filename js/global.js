@@ -1,3 +1,4 @@
+
 /*                                                                       
 *                                     ,--.                               
 *             .---.                 ,--.'|            ,----..            
@@ -19,35 +20,58 @@
 *                               GLOBAL JS FUNCTIONS
 */
 
+
+
 // RETURN LANGUAGE TEXT
-function lang(str){
-	if ( g_Lang.hasOwnProperty(str) ) {
-		return g_Lang[str];
-	} else {
-		return str;
-	}
+function lang( section, type, str ){
+	if ( LANG.hasOwnProperty( section ) ) {
+        if ( LANG[section].hasOwnProperty( type ) ) {
+            if ( LANG[section][type].hasOwnProperty( str ) ) {
+                return LANG[section][type][str];
+            }
+        }
+    }
+	return section + "_" + type + "_" + str; 
+}
+
+// RETURN LANGUAGE TEXT
+function langOLD( section, type, str ){
+	if ( g_Lang.hasOwnProperty( section ) ) {
+        if ( g_Lang[section].hasOwnProperty( type ) ) {
+            if ( g_Lang[section][type].hasOwnProperty( str ) ) {
+                return g_Lang[section][type][str];
+            }
+        }
+    }
+	return section + "_" + type + "_" + str; 
 }
 
 
-// RUN EXECUTE SCRIPT
-function exec(fn, par=null){
-	$.ajax({
-        type: "GET",
-        url: g_webroot+"/includes/execute.php" ,
-        data: { command: fn ,
-				parameter: par
-				},
-        success : function(data) { 
-            // here is the code that will run on client side after running clear.php on server
-			alert ( "success '" + JSON.stringify( data ) + "'" );
-            // function below reloads current page
-            //location.reload();
-        },
-		error : function(data) {
-			alert ( "FAILED: " + JSON.stringify( data ) ); 
-		}
-    });
-}	
+// RETURN DEFAULT IF ELEMENT NOT EXISTs
+function getVal ( arrayObj, section, defVal = "" ){
+	if ( (Array.isArray( arrayObj )) && (arrayObj.includes( section )) ){
+		return arrayObj[section];
+	} else if ( (typeof arrayObj === "object") && (arrayObj !== null) && (arrayObj.hasOwnProperty(section)) ) {
+		return arrayObj[section];
+	} else {
+		return defVal;
+	}
+}
+
+// SHOW TAB
+/*  show s/ hides a tab
+*		parameter: 
+*           Tab Object e.g.: $(#tabid)
+*           visibility - true/false
+*/
+function showTab( oTab, visibility ){
+    if ( visibility == true ){ 
+        oTab.prop('disabled', false).removeClass('ui-disabled');
+    } else {
+        oTab.prop('disabled', true).addClass('ui-disabled');
+    }
+}
+
 
 // SERIALIZE FORM DATA
 (function($){

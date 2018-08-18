@@ -90,35 +90,41 @@ function arr2ini(array $data){
     foreach ($data as $section => $values)
     {
         //values must be an array
-        if (!is_array($values)) {
-            continue;
-        }
- 
-        //add section
-        $output .= "[$section]".PHP_EOL;
- 
-        //add key/value pairs
-        foreach ($values as $key => $val) {
-            if ( is_array($val) ){
-              foreach ( $val as $subkey => $subval ){
-                  if ( is_int( $subkey ) ){
-                    // MULTIPLE SAME ENTRY
-                    $output .= "$key=$subval".PHP_EOL;
-                  } else {
-                    // ARRAY WITH ANOTHER SECTION
-                    // HANDLE HERE
-                    $output .= "$subkey=$subval".PHP_EOL;
-                    // !!!!!!!!!!!!!
+        if ( is_array($values)) {
+            //add section
+            $output .= "[$section]".PHP_EOL;
+     
+            //add key/value pairs
+            foreach ($values as $key => $val) {
+                if ( is_array($val) ){
+                  foreach ( $val as $subkey => $subval ){
+                      if ( is_int( $subkey ) ){
+                        // MULTIPLE SAME ENTRY
+                        $output .= "$key=$subval".PHP_EOL;
+                      } else {
+                        // ARRAY WITH ANOTHER SECTION
+                        // HANDLE HERE
+                        $output .= "$subkey=$subval".PHP_EOL;
+                        // !!!!!!!!!!!!!
+                      }
                   }
-              }
-            } else {
-              $output .= "$key=$val".PHP_EOL;
+                } else {
+                  $output .= "$key=$val".PHP_EOL;
+                }
             }
+            $output .= PHP_EOL;
+        } else {
+            $output .= "$section=$values".PHP_EOL;
         }
-        $output .= PHP_EOL;
     }
  
     //write data to file
     return $output;
 }
+
+
+
+
+
+
 ?>

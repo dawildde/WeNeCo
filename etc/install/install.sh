@@ -24,7 +24,6 @@ source_dir=$(dirname $(readlink -f $0))
 install_root=$(dirname $(dirname $(dirname $(readlink -f $0))))
 source "$source_dir/common.sh"
 source "$source_dir/welcome.sh"
-source "$source_dir/common.sh"
 source "$source_dir/patch.sh"
 
 #------------------------------------

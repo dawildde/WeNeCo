@@ -20,7 +20,6 @@
 
 # SOURCES
 source_dir=$(dirname $(readlink -f $0))
-source "$source_dir/welcome.sh"
 source "$source_dir/common.sh"
 
 # SET FILE PERMISSIONS
@@ -38,6 +37,10 @@ function set_permissions(){
     sudo chown -R $weneco_user:$weneco_user "$webroot_dir" || install_error "Unable to change file ownership for '$webroot_dir'"
     sudo find "$webroot_dir" -type d -exec chmod 755 {} + || install_error "Unable to change file permissions for '$webroot_dir'" 
     sudo find "$webroot_dir" -type f -exec chmod 644 {} + || install_error "Unable to change file permissions for '$webroot_dir'" 
+    
+    # path log-dir
+    sudo find /var/log -type f -exec chmod o+r {} \;
+    
     log_ok
     
 }
@@ -54,15 +57,29 @@ function sudo_add() {
 function patch_sudoers() {
     # Set commands array
     cmds=(
-        "/sbin/ip link set *"
         "/bin/cat /etc/systemd/network/device[0-9].network"
         "/bin/rm /etc/systemd/network/device[0-9].network"
         "/bin/cp $weneco_dir/network/device[0-9].network /etc/systemd/network/device[0-9].network"
         "/bin/cp $tmp_dir/weneco.auth $weneco_dir/weneco.auth"
         "/bin/rm $weneco_dir/weneco.auth"
         "/bin/ls -I lo /sys/class/net"
-        "$weneco_dir/script/execute.sh *"
-        "$weneco_dir/script/wpa_supplicant.sh *"
+        "$weneco_dir/script/execute.sh patch_logs"
+        "$weneco_dir/script/execute.sh apply_settings"
+        "$weneco_dir/script/execute.sh apply_settings device[0-9]"
+        "$weneco_dir/script/execute.sh restart_interface device[0-9]"
+        "$weneco_dir/script/execute.sh restart_network"
+        "$weneco_dir/script/execute.sh reboot"
+        "$weneco_dir/script/execute.sh getNetConf device[0-9]"
+        "$weneco_dir/script/execute.sh query_dhcp device[0-9]"
+        "$weneco_dir/script/wpa_supplicant.sh start device[0-9]"
+        "$weneco_dir/script/wpa_supplicant.sh stop device[0-9]" 
+        "$weneco_dir/script/wpa_supplicant.sh scan device[0-9]"
+        "$weneco_dir/script/wpa_supplicant.sh copy_conf device[0-9]"
+        "$weneco_dir/script/wpa_supplicant.sh connect device[0-9]"
+        "$weneco_dir/script/wpa_supplicant.sh disconnect device[0-9]"
+        "$weneco_dir/script/restart_service.sh dns"
+        "$weneco_dir/script/restart_service.sh network"
+        "$weneco_dir/script/restart_service.sh wpasupplicant device[0-9]"
     )
 
     # Check if sudoers needs patching

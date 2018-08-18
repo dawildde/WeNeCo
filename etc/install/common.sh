@@ -20,9 +20,10 @@
 #
 
 # SOURCES
-source_dir=$(dirname $(readlink -f $0))         # DIRECTORY FOR INSTALLER SOURCE FILES (.../weneco/etc/install)
-setup_root=$(dirname $(dirname $source_dir))    # WENECO ROOT DIRECTORY (.../weneco)
-source "$source_dir/config.sh"
+source_dir=$(dirname $(readlink -f $0))             # DIRECTORY FOR INSTALLER SOURCE FILES (.../weneco/etc/install)
+setup_root=$(dirname $(dirname $source_dir))        # WENECO ROOT DIRECTORY (.../weneco)
+etc_root=$(dirname $source_dir)                     # ETC-ROOT
+source "$etc_root/config/config.sh"                 # CONFIG-FILE
 source "$source_dir/welcome.sh"
 
 # GET BASESCRIPT NAME
@@ -328,6 +329,8 @@ function install_dependencies(){
     install_package "git" 
     install_package "hostapd" 
     install_package "dnsmasq"
+    install_package "wpasupplicant"
+    install_package "dhclient"
 }
 
 
@@ -342,7 +345,8 @@ function disable_service(){
     then
         log_ne "disabling $1"
         eval "sudo systemctl stop $1" && log_ok || log_failed
-        eval "sudo systemctl disable_service $1.service"
+        eval "sudo systemctl disable $1"
+        eval "sudo systemctl mask $1"
     else
         log "$1 not active"
     fi
@@ -361,14 +365,18 @@ function disable_services(){
     disable_service "dhcpcd"
     disable_service "NetworkManager"
     disable_service "connman"
+    disable_service "networking.service"
+    ## disable wpasupplicant because it will be startet throug 'wpasupplicant@<INTERFACE>.service'
+    #sudo systemctl mask wpa_supplicant.service
 }
 
 # ENABLE SYSTEMD NETWORKING
 function enable_systemd(){
     enable_service "systemd-networkd.service"
     enable_service "systemd-resolved.service"
+    enable_service "hostapd"
+    enable_service "dnsmasq"
 }
-
 
 # DISABLE SYSTEMD
 function disable_systemd(){

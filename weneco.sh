@@ -29,11 +29,11 @@ function install_error() {
 
 # MERGE CONFIGURATION FILE
 function merge_config() {
-    new_conf="/tmp/weneco/etc/install/config.sh"
-    old_conf="$script_dir/install/config.sh"
+    new_conf="/tmp/weneco/etc/config/config.sh"
+    old_conf="$script_dir/config/config.sh"
 
     if [ -f $old_conf ]; then
-        echo -ne "merging configuration file"
+        echo -ne "merging configuration file '$old_conf' with '$new_conf'"
         # Loop old conf-file
         while IFS= read -r line; do
             if [[ $line =~ .*=.* ]]; then

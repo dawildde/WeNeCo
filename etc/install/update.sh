@@ -34,28 +34,17 @@ function get_update_steps(){
     log_ne "Generating Update-steps from $old_version to $new_version"
     
     # GENERATE UPDATE STEPS FROM
-    # V0.0.4 -> V0.0.5
-    if [ "$old_version" == "0.0.4" ]; then
-        add_step "copy_etc_files"
-        add_step "set_permissions"
-        add_step "patch_sudoers"
-        old_version="0.0.5"     # set next version here
-    fi
-    # V0.0.5 -> V0.0.6
-    if [ "$old_version" == "0.0.5" ]; then
-        full_update
-        old_version="0.0.6"     # set next version here
-    fi
-    # V0.0.6 -> V0.0.7
-    if [ "$old_version" == "0.0.6" ]; then
-        full_update
-        old_version="0.0.7"     # set next version here
-    fi
     
     # V0.1.0 -> V0.1.1
     if [ "$old_version" == "0.1.0" ]; then
         full_update
         old_version="0.1.1"     # set next version here
+    fi
+    
+        # V0.1.1 -> V0.1.2
+    if [ "$old_version" == "0.1.1" ]; then
+        full_update
+        old_version="0.1.2"     # set next version here
     fi
     
     # VXXXX

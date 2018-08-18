@@ -49,10 +49,10 @@ function saveAuth(){
   $newhash = password_hash( $_POST['newpass1'], PASSWORD_BCRYPT );
   
   // CHECK DATA
-  //if ( ! CSRFValidate() ) { $result = lang( "MSG_CSFR_VIOLATION" ); }
-  if ( strlen( $username ) < 4 ) { return lang( "MSG_USERNAME_LEN" ); }
-  if ( is_file ( AUTH_FILE ) and ! password_verify( $_POST['oldpass'], $old_pass ) ) { return lang( "MSG_PWD_MISMATCH" ); }
-  if ( ! $_POST["newpass1"] == $_POST["newpass2"] ){ return lang( "MSG_PWD_CONFIMATION" ); }
+  //if ( ! CSRFValidate() ) { $result = lang( "GLOBAL", "MSG", "HCSFR_VIOLATION" ); }
+  if ( strlen( $username ) < 4 ) { return lang( "AUTHCONF", "MSG", "USERNAME_LEN" ); }
+  if ( is_file ( AUTH_FILE ) and ! password_verify( $_POST['oldpass'], $old_pass ) ) { return lang( "AUTHCONF", "MSG", "PWD_MISMATCH" ); }
+  if ( ! $_POST["newpass1"] == $_POST["newpass2"] ){ return lang( "AUTHCONF", "MSG", "PWD_CONFIMATION" ); }
   
   $fauth = fopen( TMP_DIR. "/weneco.auth", "w" );
   if ( $fauth ){
@@ -67,9 +67,9 @@ function saveAuth(){
   }
   
   if ( $rw_err ){
-    return lang( "MSG_F_W_ERROR" );
+    return lang( "GLOBAL", "MSG", "F_W_ERROR" );
   }  
-  return lang( "MSG_SUCCESS" );
+  return lang( "GLOBAL", "MSG", "SUCCESS" );
 }
 
 
@@ -82,9 +82,9 @@ function removeAuth(){
   $rw_err = false;
   $old_pass = $authData[1];
   
-  if ( is_file ( AUTH_FILE ) and ! password_verify( $_POST['oldpass'], $old_pass ) ) { return lang( "MSG_PWD_MISMATCH" ); }
+  if ( is_file ( AUTH_FILE ) and ! password_verify( $_POST['oldpass'], $old_pass ) ) { return lang( "AUTHCONF", "MSG", "PWD_MISMATCH" ); }
   $ret =  exec ( "sudo rm " . AUTH_FILE );
-  return lang( "MSG_SUCCESS" );
+  return lang( "GLOBAL", "MSG", "SUCCESS" );
 }
 
 // SHOW AUTHENTICATION Configuration
@@ -93,28 +93,28 @@ function showAuthConf(){
     ?>
 
       <!-- Content Header -->
-      <div id="content_header">
-        <?php echo lang("HDR_AUTHCONF"); ?>
+      <div data-role="header" id="content_header">
+        <?php echo lang( "AUTHCONF", "TXT", "HEADER" ); ?>
       </div>
       <!--./content_header -->
 
       <!-- Content Body -->
-      <div id="content_body">
+      <div data-role="content"  id="content_body">
         <div id="result" class="<?php echo $div_class; ?>">
           <?php echo $result; ?>
         </div>
         <form name="authconf" action="index.php?page=authconf" method="post" id="authconf" class="ui-body ui-body-a ui-corner-all">
           <?php echo printCSRFToken(); // ADD CSFR TOKEN ?>
-          <label for="username"><?php echo lang("LBL_TXT_USERNAME"); ?></label>
+          <label for="username"><?php echo lang( "AUTHCONF", "LBL", "USERNAME" ); ?></label>
             <input type="text" name="username" id="username" value="<?php echo $username;?>" disabled="disabled"/>
-          <label for="oldpass"><?php echo lang("LBL_TXT_OLDPASS"); ?></label>
+          <label for="oldpass"><?php echo lang( "AUTHCONF", "LBL", "OLDPASS" ); ?></label>
             <input type="password" name="oldpass" id="oldpass"/>
-          <label for="newpass1"><?php echo lang("LBL_TXT_NEWPASS1"); ?></label>
+          <label for="newpass1"><?php echo lang( "AUTHCONF", "LBL", "NEWPASS1" ); ?></label>
             <input type="password" name="newpass1" id="newpass1"/>
-          <label for="newpass2"><?php echo lang("LBL_TXT_NEWPASS2"); ?></label>
+          <label for="newpass2"><?php echo lang( "AUTHCONF", "LBL", "NEWPASS2" ); ?></label>
             <input type="password" name="newpass2" id="newpass2"/>  
-          <input type="submit" data-theme="b" name="UpdateAuth" value="<?php echo lang("BTN_SAVE"); ?>" />
-          <input type="submit" data-theme="c" name="RemoveAuth" value="<?php echo lang("BTN_REMOVE"); ?>" />           
+          <input type="submit" data-theme="b" name="UpdateAuth" value="<?php echo lang( "GLOBAL", "BTN", "SAVE"); ?>" />
+          <input type="submit" data-theme="c" name="RemoveAuth" value="<?php echo lang( "GLOBAL", "BTN", "REMOVE" ); ?>" />           
         </form>
       </div>
       <!--./content_body -->
@@ -127,7 +127,7 @@ if ( isset ( $_POST["UpdateAuth"] ) ) {
 } elseif ( isset ( $_POST["RemoveAuth"] ) ) {
     $result = removeAuth();
 }
-if ( $result == lang( "MSG_SUCCESS" ) ){
+if ( $result == lang( "GLOBAL", "MSG", "SUCCESS" ) ){
   $div_class = "result_ok";
 }
 ?>

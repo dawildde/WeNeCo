@@ -16,83 +16,17 @@
  * 
  *                          Web Network Configuration 
  *     
- *                                DEFAULT STYLE
+ *                                networkconf.js
  */
 
-/* MAIN BODY */
-body {
-  font: 12px Verdana, Arial, Helvetica, sans-serif;
-}
-
-
-
-#container {
-  width:100%;
-  height: 100%;
-  min-height:800px;
-  margin: 0 auto;
-}
-
-#top {
-  background-color:white;
-}
-.logo { 
-    background: url("../img/WeNeCo.png") no-repeat; width: 300px; height: 150px; display: block; text-indent: -9999px;}
-}
-
-
-
-/* NAV-BAR */
-/* STYLED BY JQUERY */
-/* ./nav-bar */
-
-
-/*  CONTENT  */
-#content {
-  background-color: #f0f0f0;
-  margin: 0 auto;
-  float: clear;
-}
-
-#content_header {
-    font-size: 24px;
-    text-align: center;
-    margin: auto;
-	padding: 30px 0px 15px;
-}
-
-#content_body {
-    margin: auto;
-    text-align: center;
-}
-
-.iptable {
-	margin: 5px auto 30px;
-}	
-
-/* RESULT MESSAGES*/
-.result_ok{
-	margin: 10px;
-	color: green;
-}
-
-.result_warn{
-	margin: 10px;
-	color: orange;
-}
-
-.result_fail{
-	margin: 10px;
-	color: red;
-}
-
-/*  ./content  */
-
-
-#footer{
-	clear: both;
-	text-align: right;
-	padding: 30px;
-	margin-right: 0px 20px;
-}
-/* ./main-body */
+ 
+ 
+ 
+ 
+  // ADD HANDLERS
+ $( document ).ready(function() {
+	$(" #cmdRestartIf" ).click( function(){ exec( "restart_if", $( "#interface" ).val() )} );
+    $(" #cmdQueryDhcp" ).click( function(){ exec( "query_dhcp", $( "#interface" ).val() )}} );
+    $(" #cmdRestartDNS" ).click( function(){ exec( "restart_dns" ) } );
+ });
+ 

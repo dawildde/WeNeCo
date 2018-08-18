@@ -24,7 +24,7 @@
  * 
  * @author     Christian Wild <christian@dawild.de>
  * @license    GNU General Public License, version 3 (GPL-3.0)
- * @version    0.0.1
+ * @version    0.1.1
  * @link       https://github.com/dawildde/WeNeCo
  */
 session_start();
@@ -36,12 +36,14 @@ $server_root = dirname(__FILE__);
 include_once( 'includes/secure.php' );
 include_once( 'includes/config.php' );
 include_once( 'includes/language.php' );
-include_once( 'sites/authentification.php' );
 include_once( 'sites/themes.php' );
 include_once( 'sites/dashboard.php' );
+include_once( 'sites/networkconf.php' );
 include_once( 'sites/construction.php' );
 include_once( 'sites/system.php' );
-include_once( 'sites/ifconfig.php' );
+include_once( 'sites/sys_authconf.php' );
+include_once( 'sites/sys_logview.php' );
+include_once( 'sites/sys_fileedit.php' );
 
 $output = $return = 0;
 if ( isset($_REQUEST['page']) ){
@@ -73,9 +75,6 @@ validateAuth();
     <meta name="author" content="">
 
     <title>Web Network Configuration Portal</title>
-
-    <!-- Theme CSS -->
-    <link href="<?php echo $theme_url; ?>" title="main" rel="stylesheet">
     
     <!-- JQUERY -->
     <link rel="stylesheet" href="js/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.css" />
@@ -83,33 +82,41 @@ validateAuth();
     <script src="js/jquery.mobile-1.4.5/jquery.mobile-1.4.5.min.js"></script>
     <!-- ./jquery -->
     
+    <!-- Theme CSS -->
+    <link href="<?php echo $theme_url; ?>" title="main" rel="stylesheet">
+    
     <!-- JS-SCRIPTS -->  
     <script src="js/js_php.php"></script>
+    <script src="js/ajax.js"></script>
     <script src="js/global.js"></script>    
     <script src="js/system.js"></script>
-    <script src="js/ifconfig.js"></script>
+    <script src="js/dashboard.js"></script> 
+    <script src="js/networkconf.js"></script>     
+    <script src="js/net_ifconf.js"></script>
+    <script src="js/net_wificonf.js"></script>
+    <script src="js/net_hostapd.js"></script>
     <!-- ./js -->
   </head>
   
   <body>
-   <div id="container">
+   <div data-role="page" id="container">
     <!-- Header -->
-    <div id="header">
+    <div id="top">
       <a class="logo" href="index.php">Logo</a>
     </div>
     <!-- ./header -->
 
     <!-- Navigation -->
-    <div id="nav">
+    <div data-role="navbar" id="nav">
       <ul>
         <li>
-          <a href="index.php?page=dashboard"><?php echo lang('DASHBOARD_LINK'); ?></a>
+          <a href="index.php?page=dashboard"><?php echo lang( "MENU", "LNK", "DASHBOARD" ); ?></a>
         </li>
         <li>
-          <a href="index.php?page=ifconfig"><?php echo lang('IF_CONFIG_LINK'); ?></a>
+          <a href="index.php?page=netconf"><?php echo lang( "MENU", "LNK", "NETCONF" ); ?></a>
         </li>
         <li>
-          <a href="index.php?page=system"><?php echo lang('SYSTEM_LINK'); ?></a>
+          <a href="index.php?page=system"><?php echo lang( "MENU", "LNK", "SYSTEM" ); ?></a>
         </li>
       </ul>
     </div>
@@ -122,8 +129,8 @@ validateAuth();
           case "dashboard":
             showDashboard();
             break;
-          case "ifconfig":
-            showIfConfig();
+          case "netconf":
+            showNetConf();
             break;
           case "themes":
             showConstruction();
@@ -133,6 +140,12 @@ validateAuth();
             break;
           case "authconf":
             showAuthConf();
+            break;
+          case "logviewer":
+            showLogViewer();
+            break;
+          case "fileedit":
+            showFileEditor();
             break;
           default:
             showDashboard();
@@ -148,5 +161,18 @@ validateAuth();
     </div>
     <!-- ./footer -->
     </div>
+    
+    <!-- SCRIPT -->
+    <script language="javascript">
+    <!-- AJAX-Loader -->
+    $(document).on({
+        ajaxSend: function () { loading('show'); },
+        ajaxStart: function () { loading('show'); },
+        ajaxStop: function () { loading('hide'); },
+        ajaxError: function () { loading('hide'); }
+    });
+    <!-- ./loader -->
+    </script>
+    <!-- ./script -->
   </body>
 </html>

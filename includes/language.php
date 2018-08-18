@@ -30,13 +30,13 @@ if ( file_exists($lngFile)){
 };
 
 // RETURNS LANGUAGE STRING IF EXISTS
-function lang($str){
+function lang( $section, $type, $str){
   global $_L;
 
-  if ( isset( $_L[$str] ) ){
-    return $_L[$str];
+  if ( isset( $_L[$section][$type][$str] ) ){
+    return $_L[$section][$type][$str];
   } else {
-    return $str;
+    return $section ."_". $type ."_". $str;
   }
 }
 

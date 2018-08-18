@@ -20,7 +20,6 @@
 #
 # SOURCES
 source_dir=$(dirname $(readlink -f $0))
-source "$source_dir/welcome.sh"
 source "$source_dir/common.sh"
 
 # SHOW CONFIGURE NETWORK DIALOG
